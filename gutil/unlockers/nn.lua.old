@@ -1,0 +1,177 @@
+local _, NoName, gutil = ...
+gutil.api = {}
+
+local dir = "/scripts/gutil/"
+
+-- Filesystem
+gutil.api.create_directory = function(file, ...)
+    return CreateDirectory(dir..file, ...)
+end
+gutil.api.delete_directory = function(file, ...)
+    return DeleteDirectory(dir..file, ...)
+end
+gutil.api.delete_file = function(file, ...)
+    return DeleteFile(dir..file, ...)
+end
+gutil.api.directory_exists = function(file, ...)
+    return DirectoryExists(dir..file, ...)
+end
+gutil.api.file_exists = function(file, ...)
+    return FileExists(dir..file, ...)
+end
+gutil.api.list_files = function(file, ...)
+    return ListFiles(dir..file, ...)
+end
+gutil.api.read_file = function(file, ...)
+    return ReadFile(dir..file, ...)
+end
+gutil.api.require = function(file, ...)
+    return NoName:Require(dir..file, ...)
+end
+gutil.api.require_file_enc = function(file, ...)
+    return NoName:RequireFileEnc(dir..file, ...)
+end
+gutil.api.write_file = function(file, ...)
+    return WriteFile(dir..file, ...)
+end
+gutil.api.read_me_first = function(file, ...)
+    return ReadMeFirst(dir..file, ...)
+end
+
+
+gutil.api.click_position = function(...)
+    return ClickPosition(...)
+end
+
+-- Objects
+gutil.api.objects = function(...)
+    return ObjectManager(...)
+end
+
+gutil.api.object_guid = function(...)
+    return Objectguid(...)
+end
+gutil.api.object_creator = function(...)
+    return ObjectCreator(...)
+end
+gutil.api.object_position = function(...)
+    return ObjectPosition(...)
+end
+gutil.api.object_exists = function(...)
+    return ObjectExists(...)
+end
+gutil.api.object_id = function(...)
+    return ObjectID(...)
+end
+gutil.api.object_interact = function(...)
+    return ObjectInteract(...)
+end
+gutil.api.game_object_type = function(...)
+    return GameObjectType(...)
+end
+
+gutil.api.object_field = function(...)
+    return ObjectField(...)
+end
+gutil.api.object_flags = function(...)
+    return DynamicFlags(...)
+end
+gutil.api.object_facing = function(...)
+    return ObjectFacing(...)
+end
+gutil.api.object_flag_1 = function(...)
+    return UnitFlags1(...)
+end
+gutil.api.object_flag_2 = function(...)
+    return UnitFlags2(...)
+end
+gutil.api.object_flag_3 = function(...)
+    return UnitFlags3(...)
+end
+gutil.api.object_name = function(...)
+    return ObjectName(...)
+end
+gutil.api.object_lootable = function(...)
+    return ObjectLootable(...)
+end
+gutil.api.object_skinnable = function(...)
+    return ObjectSkinnable(...)
+end
+gutil.api.object_summoner = function(...)
+    return ObjectSummoner(...)
+end
+gutil.api.object_rotation = function(...)
+    return ObjectRotation(...)
+end
+gutil.api.object_yaw = function(...)
+    return ObjectYaw(...)
+end
+gutil.api.object_type = function(...)
+    return ObjectType(...)
+end
+
+gutil.api.unit_target = function(...)
+    return UnitTarget(...)
+end
+gutil.api.player_object = function(...)
+    return PlayerObject(...)
+end
+gutil.api.player_target = function(...)
+    return PlayerTarget()
+end
+
+-- Utility
+
+gutil.api.distance = function(o1, o2)
+    return Distance(o1, o2)
+end
+gutil.api.get_focus = function(...)
+    return GetFocus(...)
+end
+gutil.api.get_mouseover = function(...)
+    return GetMouseover(...)
+end
+gutil.api.trace_line = function(...)
+    return TraceLine(...)
+end
+
+gutil.api.set_player_facing = function (...)
+    return SetPlayerFacing(...)
+end
+
+-- Globals
+
+gutil.api.world_to_screen = function(sx, sy, sz)
+    if sz == nil then sz = select(3, gutil.api.object_position("player")) end
+	local x, y = WorldToScreen(sx, sy, sz)
+	if x == 0 or y == 0 or x < -1 or x > 1 or y < -1 or y > 1 then
+		return false, false
+	end
+	local multiplier = UIParent:GetEffectiveScale()
+	local width = UIParent:GetWidth()
+	local height = UIParent:GetHeight()
+	x = x * multiplier * width
+	y = -(y * multiplier) * height
+	return x, y
+end
+
+function gutil.api.get_angles_between_positions(...)
+    return GetAnglesBetweenPositions(...)
+end
+
+function gutil.api.object_is_facing(obj1, obj2, degrees)
+    local Facing = gutil.api.object_facing(obj1)
+    local AngleToUnit = gutil.api.get_angles_between_positions(obj1, obj2)
+    local AngleDifference = Facing > AngleToUnit and Facing - AngleToUnit or AngleToUnit - Facing
+    local ShortestAngle = AngleDifference < gutil.math.pi and AngleDifference or gutil.math.pi * 2 - AngleDifference
+    degrees = degrees and gutil.api.rad(degrees) / 2 or gutil.api.math.pi / 2
+    return ShortestAngle < degrees
+end
+
+gutil.api.get_position_between_objects = function(obj1, obj2, distance_from_obj1)
+    local x1, y1, z1 = gutil.api.object_position(obj1)
+    local x2, y2, z2 = gutil.api.object_position(obj2)
+
+    local xy, xyz = gutil.api.get_angles_between_positions(x1, y1, z1, x2, y2, z2)
+    return gutil.api.get_position_from_position(x1, y1, z1, distance_from_obj1, xy, xyz)
+end

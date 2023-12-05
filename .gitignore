@@ -1,0 +1,5 @@
+*.exe
+*.dll
+gutil/settings/*.json
+.vscode
+*.code-workspace
