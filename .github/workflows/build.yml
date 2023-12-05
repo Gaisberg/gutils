@@ -1,0 +1,25 @@
+name: "Unix build"
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: leafo/gh-actions-lua@v8
+      with:
+        luaVersion: "5.1"
+
+    - uses: leafo/gh-actions-luarocks@v4
+
+    - name: dependencies
+      run: |
+        luarocks install busted
+        luarocks install luacov-coveralls
+
+    - name: build
+      run: |
+        luarocks make
